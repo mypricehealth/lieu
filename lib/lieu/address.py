@@ -75,6 +75,7 @@ class Address(object):
             ('addr:housenumber:base', AddressComponents.HOUSE_NUMBER_BASE),
             ('house_number', AddressComponents.HOUSE_NUMBER),
             ('housenumber', AddressComponents.HOUSE_NUMBER),
+            ('number', AddressComponents.HOUSE_NUMBER),
             ('addr:street', AddressComponents.STREET),
             ('street', AddressComponents.STREET),
             ('addr:floor', AddressComponents.FLOOR),
@@ -176,11 +177,6 @@ class Address(object):
         coords = data.get('geometry', {}).get('coordinates', [])
 
         lat, lon = cls.get_latlon(coords)
-        try:
-            lat, lon = latlon_to_decimal(lat, lon)
-        except ValueError:
-            lat = lon = None
-
         if lat is not None:
             fields[Coordinates.LATITUDE] = lat
         if lon is not None:
@@ -191,12 +187,19 @@ class Address(object):
     @classmethod
     def get_latlon(cls, coords):
       if not type(coords) is list or len(coords) == 0:
-        return [None, None]
+        return (None, None)
 
-      if len(coords) != 2 or not type(coords[0]) is float or not type(coords[1]) is float: # polygon coordinate value with multiple points so take first point
+      if len(coords) != 2 or type(coords[0]) is list: # multiple points so take first point
         return cls.get_latlon(coords[0])
 
-      return [coords[0], coords[1]]
+      lat, lon = coords
+      if not type(lat) is float or not type(lon) is float:
+        try:
+          lat, lon = latlon_to_decimal(lat, lon)
+        except ValueError:
+          lat = lon = None
+
+      return (lat, lon)
 
     @classmethod
     def have_latlon(cls, props):
