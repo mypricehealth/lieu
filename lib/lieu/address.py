@@ -175,14 +175,7 @@ class Address(object):
         fields = cls.field_map.replace(properties)
         coords = data.get('geometry', {}).get('coordinates', [])
 
-        if not type(coords) is list or (len(coords) == 1 and not type(coords[0]) is list):
-          return fields
-
-        if len(coords) == 1: # polygon coordinate value with multiple points so take first point
-          lat, lon = coords[0]
-        elif len(coords) == 2: # single coordinate value (point)
-          lat, lon = coords
-
+        lat, lon = cls.get_latlon(coords)
         try:
             lat, lon = latlon_to_decimal(lat, lon)
         except ValueError:
@@ -194,6 +187,16 @@ class Address(object):
             fields[Coordinates.LONGITUDE] = lon
 
         return fields
+
+    @classmethod
+    def get_latlon(cls, coords):
+      if not type(coords) is list:
+        return [None, None]
+
+      if len(coords) != 2 or not type(coords[0]) is float or not type(coords[1]) is float: # polygon coordinate value with multiple points so take first point
+        return cls.get_latlon(coords[0])
+
+      return [coords[0], coords[1]]
 
     @classmethod
     def have_latlon(cls, props):
