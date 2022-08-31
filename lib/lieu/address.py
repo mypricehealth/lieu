@@ -173,7 +173,16 @@ class Address(object):
         properties = data.get('properties')
         properties = {k: safe_decode(v) if k in cls.field_map.aliases else v for k, v in six.iteritems(properties)}
         fields = cls.field_map.replace(properties)
-        lon, lat = data.get('geometry', {}).get('coordinates', (None, None))
+        coords = data.get('geometry', {}).get('coordinates', [])
+
+        if not type(coords) is list or (len(coords) == 1 and not type(coords[0]) is list):
+          return fields
+
+        if len(coords) == 1: # polygon coordinate value with multiple points so take first point
+          lat, lon = coords[0]
+        elif len(coords) == 2: # single coordinate value (point)
+          lat, lon = coords
+
         try:
             lat, lon = latlon_to_decimal(lat, lon)
         except ValueError:
