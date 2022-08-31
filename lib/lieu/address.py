@@ -53,7 +53,7 @@ class Aliases(object):
         replacements = defaultdict(list)
         for k in list(components):
             new_key = self.aliases.get(k)
-            if new_key and new_key not in components:
+            if new_key and new_key not in replacements:
                 replacements[new_key].append(k)
 
         values = {}
