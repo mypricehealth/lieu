@@ -190,7 +190,7 @@ class Address(object):
 
     @classmethod
     def get_latlon(cls, coords):
-      if not type(coords) is list:
+      if not type(coords) is list or len(coords) == 0:
         return [None, None]
 
       if len(coords) != 2 or not type(coords[0]) is float or not type(coords[1]) is float: # polygon coordinate value with multiple points so take first point
