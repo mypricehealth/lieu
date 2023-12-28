@@ -8,7 +8,7 @@ def main():
         install_requires=[
             'six',
             'postal>=1.1.6',
-            'rocksdb',
+            'python-rocksdb @ git+https://github.com/mypricehealth/python-rocksdb',
             'python-geohash',
             'phonenumbers',
             'mrjob',
